@@ -10,8 +10,8 @@ window_height = 800
 
 window = pygame.display.set_mode((window_width, window_height))
 
-columns = 20
-rows = 20
+columns = 16
+rows = 16
 
 box_width = window_width // columns
 box_height = window_height // rows
@@ -21,6 +21,7 @@ queue = []
 path = []
 captures = []
 
+# Clickable button
 class Button():
 	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
 		self.image = image
@@ -51,6 +52,7 @@ class Button():
 		else:
 			self.text = self.font.render(self.text_input, True, self.base_color)
 
+# Each box in the grid
 class Box:
     def __init__(self, i, j):
         self.x = i
@@ -77,18 +79,19 @@ class Box:
             self.neighbours.append(grid[self.x][self.y + 1])
 
 
-# Create Grid
+# Create grid
 for i in range(columns):
     arr = []
     for j in range(rows):
         arr.append(Box(i, j))
     grid.append(arr)
 
-# Set neighbours
+# Set neighbours of each box
 for i in range(columns):
     for j in range(rows):
         grid[i][j].set_neighbours()
 
+# Initialise start box
 start_box = grid[0][0]
 start_box.start = True
 start_box.visited = True
@@ -103,7 +106,6 @@ def main():
 
     while True:
         for event in pygame.event.get():
-            # Quit Window
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -111,11 +113,13 @@ def main():
                 x = pygame.mouse.get_pos()[0]
                 y = pygame.mouse.get_pos()[1]
 
+                # Left click to create a wall
                 if event.buttons[0]:
                     i = x // box_width
                     j = y // box_height
                     grid[i][j].wall = True
 
+                # Right click to set endpoint
                 if event.buttons[2] and not endpoint_box_set:
                     i = x // box_width
                     j = y // box_height
@@ -127,6 +131,7 @@ def main():
             if event.type == pygame.KEYDOWN and endpoint_box_set:
                 begin_search = True
 
+        # Dijkstra's algorithm
         if begin_search:
             if len(queue) > 0 and searching:
                 current_box = queue.pop(0)
@@ -142,15 +147,15 @@ def main():
                             neighbour.queued = True
                             neighbour.prior = current_box
                             queue.append(neighbour)
-
+            
+            # No solution found
             else:
                 if searching:
-                    Tk().wm_withdraw()
-                    messagebox.showinfo("No solution", "There is no solution!")
-                    searching = False
+                    no_solution()
 
         window.fill((0, 0, 0))
 
+        # Handle colouring of boxes
         for i in range(columns):
             for j in range(rows):
                 box = grid[i][j]
@@ -170,7 +175,6 @@ def main():
                     box.draw(window, (0, 0, 0))
                 if box.endpoint:
                     box.draw(window, (200, 200, 0))
-
 
                 if start_playing:
                     current = grid[0][0]
@@ -197,9 +201,10 @@ def main():
 
         pygame.display.update()
 
-def get_font(size): # Returns Press-Start-2P in the desired size
+def get_font(size): 
     return pygame.font.SysFont("arial", size)
 
+# Handle encounters
 def wild_pokemon(id):
     back_to_main = False
     while True:
@@ -211,12 +216,12 @@ def wild_pokemon(id):
         window.blit(PLAY_TEXT, (10,10))
 
         PLAY_BACK = Button(image=None, pos=(600, 460), 
-                            text_input="BACK", font=get_font(75), base_color="White", hovering_color="Green")
+                            text_input="BACK", font=get_font(40), base_color="White", hovering_color="Green")
         PLAY_BACK.changeColor(PLAY_MOUSE_POS)
         PLAY_BACK.update(window)
 
         PLAY_CATCH = Button(image=None, pos=(200, 460), 
-                            text_input="Catch", font=get_font(75), base_color="White", hovering_color="Green")
+                            text_input="Catch", font=get_font(40), base_color="White", hovering_color="Green")
         PLAY_CATCH.changeColor(PLAY_MOUSE_POS)
         PLAY_CATCH.update(window)
 
@@ -236,6 +241,7 @@ def wild_pokemon(id):
 
         pygame.display.update()
 
+# Handle capture
 def catch(pokemon):
 
     id = random.randint(1, 10)
@@ -257,7 +263,7 @@ def catch(pokemon):
         window.blit(PLAY_TEXT, (10,10))
 
         PLAY_BACK = Button(image=None, pos=(600, 460), 
-                            text_input="BACK", font=get_font(75), base_color="White", hovering_color="Green")
+                            text_input="BACK", font=get_font(40), base_color="White", hovering_color="Green")
         PLAY_BACK.changeColor(PLAY_MOUSE_POS)
         PLAY_BACK.update(window)
 
@@ -274,6 +280,7 @@ def catch(pokemon):
 
         pygame.display.update()
 
+# Handle final team showcase
 def show_victory():
     while True:
         window.fill("black")
@@ -288,6 +295,20 @@ def show_victory():
                 pygame.quit()
                 sys.exit()
     
+
+        pygame.display.update()
+
+# Handle no solution
+def no_solution():
+    while True:
+        window.fill("black")
+        PLAY_TEXT = get_font(20).render("There is no solution :(", True, (255, 255, 255))
+        window.blit(PLAY_TEXT, (10,10))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()    
 
         pygame.display.update()
 
