@@ -1,3 +1,4 @@
+from locale import strcoll
 from tkinter import Frame, messagebox, Tk
 import pygame
 import sys
@@ -19,7 +20,7 @@ box_height = window_height // rows
 grid = []
 queue = []
 path = []
-captures = []
+captures = {}
 
 # Clickable button
 class Button():
@@ -196,7 +197,7 @@ def main():
                         start_playing = False
                         current.x = 0
                         current.y = 0
-                        id = random.randint(1, 151)
+                        id = random.randint(0, 151)
                         wild_pokemon(id)
 
         pygame.display.update()
@@ -211,17 +212,20 @@ def wild_pokemon(id):
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
         pokemon = {'bulbasaur': '1', 'ivysaur': '2', 'venusaur': '3', 'charmander': '4', 'charmeleon': '5', 'charizard': '6', 'squirtle': '7', 'wartortle': '8', 'blastoise': '9', 'caterpie': '10', 'metapod': '11', 'butterfree': '12', 'weedle': '13', 'kakuna': '14', 'beedrill': '15', 'pidgey': '16', 'pidgeotto': '17', 'pidgeot': '18', 'rattata': '19', 'raticate': '20', 'spearow': '21', 'fearow': '22', 'ekans': '23', 'arbok': '24', 'pikachu': '25', 'raichu': '26', 'sandshrew': '27', 'sandslash': '28', 'nidoran-f': '29', 'nidorina': '30', 'nidoqueen': '31', 'nidoran-m': '32', 'nidorino': '33', 'nidoking': '34', 'clefairy': '35', 'clefable': '36', 'vulpix': '37', 'ninetales': '38', 'jigglypuff': '39', 'wigglytuff': '40', 'zubat': '41', 'golbat': '42', 'oddish': '43', 'gloom': '44', 'vileplume': '45', 'paras': '46', 'parasect': '47', 'venonat': '48', 'venomoth': '49', 'diglett': '50', 'dugtrio': '51', 'meowth': '52', 'persian': '53', 'psyduck': '54', 'golduck': '55', 'mankey': '56', 'primeape': '57', 'growlithe': '58', 'arcanine': '59', 'poliwag': '60', 'poliwhirl': '61', 'poliwrath': '62', 'abra': '63', 'kadabra': '64', 'alakazam': '65', 'machop': '66', 'machoke': '67', 'machamp': '68', 'bellsprout': '69', 'weepinbell': '70', 'victreebel': '71', 'tentacool': '72', 'tentacruel': '73', 'geodude': '74', 'graveler': '75', 'golem': '76', 'ponyta': '77', 'rapidash': '78', 'slowpoke': '79', 'slowbro': '80', 'magnemite': '81', 'magneton': '82', 'farfetchd': '83', 'doduo': '84', 'dodrio': '85', 'seel': '86', 'dewgong': '87', 'grimer': '88', 'muk': '89', 'shellder': '90', 'cloyster': '91', 'gastly': '92', 'haunter': '93', 'gengar': '94', 'onix': '95', 'drowzee': '96', 'hypno': '97', 'krabby': '98', 'kingler': '99', 'voltorb': '100', 'electrode': '101', 'exeggcute': '102', 'exeggutor': '103', 'cubone': '104', 'marowak': '105', 'hitmonlee': '106', 'hitmonchan': '107', 'lickitung': '108', 'koffing': '109', 'weezing': '110', 'rhyhorn': '111', 'rhydon': '112', 'chansey': '113', 'tangela': '114', 'kangaskhan': '115', 'horsea': '116', 'seadra': '117', 'goldeen': '118', 'seaking': '119', 'staryu': '120', 'starmie': '121', 'mr-mime': '122', 'scyther': '123', 'jynx': '124', 'electabuzz': '125', 'magmar': '126', 'pinsir': '127', 'tauros': '128', 'magikarp': '129', 'gyarados': '130', 'lapras': '131', 'ditto': '132', 'eevee': '133', 'vaporeon': '134', 'jolteon': '135', 'flareon': '136', 'porygon': '137', 'omanyte': '138', 'omastar': '139', 'kabuto': '140', 'kabutops': '141', 'aerodactyl': '142', 'snorlax': '143', 'articuno': '144', 'zapdos': '145', 'moltres': '146', 'dratini': '147', 'dragonair': '148', 'dragonite': '149', 'mewtwo': '150', 'mew': '151'}
 
-        window.fill("black")
-        PLAY_TEXT = get_font(20).render("You encountered a " + list(pokemon.keys())[id].upper(), True, (255, 255, 255))
+        window.fill("white")
+        PLAY_TEXT = get_font(20).render("You encountered a " + list(pokemon.keys())[id].upper(), True, (0, 0, 0))
+        image = pygame.image.load('./sprites/' + pokemon[list(pokemon.keys())[id]] + '.png')
+        image = pygame.transform.scale(image, (150,150))
         window.blit(PLAY_TEXT, (10,10))
+        window.blit(image, (325,100))
 
         PLAY_BACK = Button(image=None, pos=(600, 460), 
-                            text_input="BACK", font=get_font(40), base_color="White", hovering_color="Green")
+                            text_input="Run", font=get_font(40), base_color="Black", hovering_color="Blue")
         PLAY_BACK.changeColor(PLAY_MOUSE_POS)
         PLAY_BACK.update(window)
 
         PLAY_CATCH = Button(image=None, pos=(200, 460), 
-                            text_input="Catch", font=get_font(40), base_color="White", hovering_color="Green")
+                            text_input="Catch", font=get_font(40), base_color="Black", hovering_color="Blue")
         PLAY_CATCH.changeColor(PLAY_MOUSE_POS)
         PLAY_CATCH.update(window)
 
@@ -233,7 +237,7 @@ def wild_pokemon(id):
                 if PLAY_BACK.checkForInput(PLAY_MOUSE_POS):
                     back_to_main = True
                 if PLAY_CATCH.checkForInput(PLAY_MOUSE_POS):
-                    catch(list(pokemon.keys())[id].upper())
+                    catch(list(pokemon.keys())[id].upper(), id+1)
                     back_to_main = True
         
         if back_to_main:
@@ -242,7 +246,7 @@ def wild_pokemon(id):
         pygame.display.update()
 
 # Handle capture
-def catch(pokemon):
+def catch(pokemon, randit):
 
     id = random.randint(1, 10)
     back = False
@@ -250,20 +254,24 @@ def catch(pokemon):
     while True:
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
 
-        window.fill("black")
-        if (id < 7):
-            PLAY_TEXT = get_font(20).render(pokemon + " ran away...", True, (255, 255, 255))
+        window.fill("white")
+        if id < 7:
+            PLAY_TEXT = get_font(20).render(pokemon + " ran away...", True, (0, 0, 0))
         else:
-            PLAY_TEXT = get_font(20).render("Congratulations! You caught the " + pokemon + "!", True, (255, 255, 255))
+            PLAY_TEXT = get_font(20).render("Congratulations! You caught the " + pokemon + "!", True, (0, 0, 0))
+            image = pygame.image.load('./sprites/pokeball.png')
+            image = pygame.transform.scale(image, (150,150))
             if appended == False:
-                captures.append(pokemon)
+                captures[pokemon] = './sprites/' + str(randit) + '.png'
             appended = True
             if len(captures) == 6:
                 show_victory()
         window.blit(PLAY_TEXT, (10,10))
+        if id >= 7:
+            window.blit(image, (325,100))
 
         PLAY_BACK = Button(image=None, pos=(600, 460), 
-                            text_input="BACK", font=get_font(40), base_color="White", hovering_color="Green")
+                            text_input="BACK", font=get_font(40), base_color="Black", hovering_color="Blue")
         PLAY_BACK.changeColor(PLAY_MOUSE_POS)
         PLAY_BACK.update(window)
 
@@ -283,12 +291,20 @@ def catch(pokemon):
 # Handle final team showcase
 def show_victory():
     while True:
-        window.fill("black")
-        output = "Your team: "
-        for pkmn in captures:
-            output = output + pkmn + " "
-        PLAY_TEXT = get_font(20).render(output, True, (255, 255, 255))
-        window.blit(PLAY_TEXT, (10,10))
+        window.fill("white")
+        output = "Your team:"
+        TEAM = get_font(30).render(output, True, (0, 0, 0))
+        window.blit(TEAM, (10,10))
+
+        ycoord = 100
+        for pkmn, image in captures.items():
+            pkmn_output = get_font(20).render(pkmn.upper(), True, (0, 0, 0))
+            image_output = pygame.image.load(image)
+            image_output = pygame.transform.scale(image_output, (100,100))
+            window.blit(image_output, (10,ycoord))
+            window.blit(pkmn_output, (150,ycoord))
+            ycoord = ycoord + 100
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -301,8 +317,8 @@ def show_victory():
 # Handle no solution
 def no_solution():
     while True:
-        window.fill("black")
-        PLAY_TEXT = get_font(20).render("There is no solution :(", True, (255, 255, 255))
+        window.fill("white")
+        PLAY_TEXT = get_font(20).render("There is no solution :(", True, (0, 0, 0))
         window.blit(PLAY_TEXT, (10,10))
 
         for event in pygame.event.get():
